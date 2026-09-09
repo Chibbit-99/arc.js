@@ -1,3 +1,4 @@
+```js
 async function getConfigValue() {
   try {
     // ==================================================
@@ -28,7 +29,8 @@ async function getConfigValue() {
     // ==================================================
 
     for (const moduleName of config.modules) {
-      const url = `https://chibbit-99.github.io/arc.js/module/${moduleName}`;
+      const url =
+        `https://chibbit-99.github.io/arc.js/module/${moduleName}`;
 
       console.log(`[ARC] Loading module: ${moduleName}`);
       console.log(`[ARC] Fetching: ${url}`);
@@ -88,9 +90,6 @@ async function getConfigValue() {
        *     await importPackage("package")
        *
        * because the generated function itself is async.
-       *
-       * `importPackage` is available because it is resolved
-       * from the surrounding scope where npmloader.js defined it.
        */
       const executeInit = new Function(`
         return (async () => {
@@ -105,7 +104,7 @@ async function getConfigValue() {
     } else if (initResponse.status === 404) {
 
       console.warn(
-        "[ARC] No arc/init.js found. It is recommended to put all ARC setup scripts in arc/init.js so that dependencies are initialized before your main JavaScript file."
+        "[ARC] No arc/init.js found. It is recommended to put all ARC setup scripts in arc/init.js so that dependencies are initialized before your main JavaScript files."
       );
 
     } else {
@@ -117,48 +116,73 @@ async function getConfigValue() {
     }
 
     // ==================================================
-    // Load project's main JavaScript file
+    // Load project's JavaScript files
     // ==================================================
 
     if (!config.js) {
       console.warn(
-        '[ARC] No "js" property found in config.json. No project JavaScript file will be executed.'
+        '[ARC] No "js" property found in config.json. No project JavaScript files will be executed.'
       );
 
       return config;
     }
 
-    console.log(`[ARC] Loading project JavaScript: ${config.js}`);
+    // --------------------------------------------------
+    // Support both:
+    //
+    // "js": "./src/main.js"
+    //
+    // and:
+    //
+    // "js": [
+    //   "./src/main.js",
+    //   "./src/components.js"
+    // ]
+    // --------------------------------------------------
 
-    const jsResponse = await fetch(config.js);
+    const jsFiles = Array.isArray(config.js)
+      ? config.js
+      : [config.js];
 
-    if (!jsResponse.ok) {
-      console.error(
-        `[ARC] Failed to fetch project JavaScript "${config.js}": HTTP ${jsResponse.status}`
+    console.log(
+      `[ARC] Found ${jsFiles.length} project JavaScript file(s)`
+    );
+
+    for (const jsFile of jsFiles) {
+      console.log(
+        `[ARC] Loading project JavaScript: ${jsFile}`
       );
 
-      return config;
+      const jsResponse = await fetch(jsFile);
+
+      if (!jsResponse.ok) {
+        console.error(
+          `[ARC] Failed to fetch project JavaScript "${jsFile}": HTTP ${jsResponse.status}`
+        );
+
+        continue;
+      }
+
+      const jsCode = await jsResponse.text();
+
+      console.log(
+        `[ARC] Fetched ${jsFile} (${jsCode.length} bytes)`
+      );
+
+      console.log(
+        `[ARC] Executing project JavaScript: ${jsFile}`
+      );
+
+      const jsScript = document.createElement("script");
+
+      jsScript.textContent = jsCode;
+
+      document.body.appendChild(jsScript);
+
+      console.log(
+        `[ARC] Project JavaScript executed successfully: ${jsFile}`
+      );
     }
-
-    const jsCode = await jsResponse.text();
-
-    console.log(
-      `[ARC] Fetched project JavaScript (${jsCode.length} bytes)`
-    );
-
-    console.log(
-      `[ARC] Executing project JavaScript: ${config.js}`
-    );
-
-    const jsScript = document.createElement("script");
-
-    jsScript.textContent = jsCode;
-
-    document.body.appendChild(jsScript);
-
-    console.log(
-      `[ARC] Project JavaScript executed successfully: ${config.js}`
-    );
 
     // ==================================================
     // Finished
@@ -174,3 +198,4 @@ async function getConfigValue() {
 }
 
 getConfigValue();
+```
