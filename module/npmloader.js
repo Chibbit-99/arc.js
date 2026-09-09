@@ -3149,6 +3149,136 @@
     }
 
     // ========================================================
+    // Public importGlobal()
+    //
+    // Promotes a single named export of an already-imported
+    // package onto globalThis, so instead of writing
+    // `three.ArrowHelper` you can write `ArrowHelper` directly.
+    //
+    // IMPORTANT: this intentionally does NOT call importPackage()
+    // on your behalf. The package must already have been
+    // imported (and therefore be present in ARC.modules) via a
+    // prior:
+    //
+    //   await importPackage("three");
+    //
+    // If it isn't, importGlobal() throws immediately rather than
+    // silently importing it - this keeps package loading (async,
+    // network-bound, explicit) separate from "make this name
+    // global" (sync, local, convenience-only), and avoids a
+    // surprise network/compile step hiding inside what looks
+    // like a synchronous global assignment.
+    // ========================================================
+
+    function importGlobal(
+        packageName,
+        exportKey,
+        alias
+    ) {
+
+        if (
+            typeof packageName !== "string" ||
+            !packageName.trim()
+        ) {
+
+            throw new Error(
+                `[ARC] importGlobal() requires a ` +
+                `package name as its first argument`
+            );
+        }
+
+        if (
+            typeof exportKey !== "string" ||
+            !exportKey.trim()
+        ) {
+
+            throw new Error(
+                `[ARC] importGlobal() requires an ` +
+                `export key as its second argument`
+            );
+        }
+
+        const targetName =
+            (
+                alias &&
+                String(alias).trim()
+            ) ||
+            exportKey;
+
+        // -----------------------------------------------------
+        // Resolve which cached module this refers to.
+        //
+        // ARC.modules is keyed by the exact specifier string
+        // that was passed to importPackage() (e.g. "three",
+        // "@anthropic-ai/sdk", "@anthropic-ai/sdk/helpers").
+        // importGlobal() accepts the same kind of specifier.
+        // -----------------------------------------------------
+
+        if (
+            !ARC.modules.has(
+                packageName
+            )
+        ) {
+
+            throw new Error(
+                `[ARC] importGlobal("${packageName}", ` +
+                `"${exportKey}"${alias ? `, "${alias}"` : ""}) ` +
+                `failed: dependencies not imported. ` +
+                `Call "await importPackage(${
+                    JSON.stringify(packageName)
+                })" first, then call importGlobal().`
+            );
+        }
+
+        const module =
+            ARC.modules.get(
+                packageName
+            );
+
+        if (
+            !Object.prototype.hasOwnProperty.call(
+                module,
+                exportKey
+            )
+        ) {
+
+            throw new Error(
+                `[ARC] importGlobal("${packageName}", ` +
+                `"${exportKey}") failed: ` +
+                `"${exportKey}" is not an export of ` +
+                `"${packageName}". Available exports: ` +
+                `${Object.keys(module).join(", ")}`
+            );
+        }
+
+        const value =
+            module[exportKey];
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                globalThis,
+                targetName
+            )
+        ) {
+
+            warn(
+                `importGlobal() is overwriting existing ` +
+                `global "${targetName}"`
+            );
+        }
+
+        globalThis[targetName] =
+            value;
+
+        log(
+            `Global: ${targetName} = ` +
+            `${packageName}.${exportKey}`
+        );
+
+        return value;
+    }
+
+    // ========================================================
     // Expose debugging API
     // ========================================================
 
@@ -3157,6 +3287,9 @@
 
     globalThis.importPackage =
         importPackage;
+
+    globalThis.importGlobal =
+        importGlobal;
 
     // ========================================================
     // Ready
@@ -3169,6 +3302,10 @@
 
     console.log(
         'Test: const Tesseract = await importPackage("tesseract.js")'
+    );
+
+    console.log(
+        'Then: importGlobal("three", "ArrowHelper")'
     );
 
 })();
