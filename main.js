@@ -1,4 +1,3 @@
-```js
 async function getConfigValue() {
   try {
     // ==================================================
@@ -198,4 +197,3 @@ async function getConfigValue() {
 }
 
 getConfigValue();
-```
