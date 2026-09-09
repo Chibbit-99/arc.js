@@ -226,6 +226,66 @@
     }
 
     // ========================================================
+    // Source map comment stripping (Problem 2)
+    //
+    // ARC does not fetch/host ".map" files through esbuild's
+    // resolver, and esbuild-wasm cannot read arbitrary files
+    // off a real filesystem to satisfy a
+    // "//# sourceMappingURL=foo.js.map" comment on its own in
+    // the browser. Left alone, esbuild-wasm treats that as a
+    // load failure ("not implemented on js
+    // [missing-source-map]") and warns/fails the whole
+    // compilation.
+    //
+    // Source maps are optional debugging metadata, not part of
+    // a package's actual behavior, so a missing one should never
+    // break execution. Rather than let esbuild-wasm attempt (and
+    // fail) to resolve them, ARC strips the comment before
+    // handing source to esbuild. This is forward-compatible:
+    // if/when ARC adds real source-map hosting, this stripping
+    // step can simply be removed or made conditional.
+    // ========================================================
+
+    const SOURCE_MAPPING_URL_RE =
+        /^\s*\/\/[#@]\s*sourceMappingURL=.*$/gm;
+
+    function stripSourceMappingComments(
+        source,
+        path
+    ) {
+
+        if (
+            !source.includes(
+                "sourceMappingURL"
+            )
+        ) {
+            return source;
+        }
+
+        let count = 0;
+
+        const stripped =
+            source.replace(
+                SOURCE_MAPPING_URL_RE,
+                () => {
+                    count++;
+                    return "";
+                }
+            );
+
+        if (count > 0) {
+
+            log(
+                `Ignoring optional source map` +
+                `${count > 1 ? "s" : ""} in: ` +
+                `${path}`
+            );
+        }
+
+        return stripped;
+    }
+
+    // ========================================================
     // Package specifier parser
     // ========================================================
 
@@ -1428,12 +1488,31 @@
             return null;
         }
 
+        // -----------------------------------------------------
+        // ARC is a browser + ESM runtime, so conditions are
+        // preferred in this order:
+        //
+        //   browser -> import -> module -> default -> require
+        //
+        // "default" is the spec-sanctioned universal fallback
+        // and is intentionally preferred over "require": a
+        // "require" branch points at a CommonJS-shaped file,
+        // which is a worse fit for us than an untagged
+        // "default" branch that is very often the ESM/neutral
+        // build (this is exactly the shape package.json uses:
+        // { "require": {...}, "default": "./index.mjs" }).
+        // "require" is kept as an actual last resort rather
+        // than removed, since some packages only ship a
+        // "require" condition with no "default" at all - ARC's
+        // CJS interop (see wrapCommonJS) makes that survivable.
+        // -----------------------------------------------------
+
         const conditions = [
             "browser",
             "import",
             "module",
-            "require",
-            "default"
+            "default",
+            "require"
         ];
 
         for (
@@ -1456,6 +1535,15 @@
                 if (
                     result !== null
                 ) {
+
+                    log(
+                        `Conditional exports: ` +
+                        `selected "${condition}" -> ` +
+                        `${typeof result === "string"
+                            ? result
+                            : JSON.stringify(result)}`
+                    );
+
                     return result;
                 }
             }
@@ -1596,6 +1684,19 @@
         const files =
             pkgResult.files;
 
+        log(
+            `Resolving package entry: ` +
+            `${pkgResult.name} ` +
+            `(subpath "${subpath}")`
+        );
+
+        if (pkg.exports) {
+
+            log(
+                "Package exports field detected"
+            );
+        }
+
         let requested;
 
         // -----------------------------------------------------
@@ -1654,6 +1755,11 @@
             withoutLeadingDotSlash(
                 requested
             );
+
+        log(
+            `Selected browser/import entry: ` +
+            `${requested}`
+        );
 
         // -----------------------------------------------------
         // First resolve the real file.
@@ -1981,6 +2087,26 @@
         log(
             `Entry: ${entry.path}`
         );
+
+        {
+            const entryExt =
+                fileExtension(
+                    entry.path
+                ).toLowerCase();
+
+            const guessedFormat =
+                entryExt === ".mjs"
+                    ? "ESM (.mjs)"
+                    : entryExt === ".cjs"
+                        ? "CommonJS (.cjs)"
+                        : "JS (format decided by " +
+                          "esbuild during compilation)";
+
+            log(
+                `Entry file extension suggests: ` +
+                `${guessedFormat}`
+            );
+        }
 
         // -----------------------------------------------------
         // Build VFS
@@ -2380,10 +2506,24 @@
                                 loader = "js";
                         }
 
+                        let contents =
+                            decode(bytes);
+
+                        // JSON has no source-map comments and
+                        // must remain valid JSON - only strip
+                        // for JS-family loaders.
+                        if (loader !== "json") {
+
+                            contents =
+                                stripSourceMappingComments(
+                                    contents,
+                                    args.path
+                                );
+                        }
+
                         return {
 
-                            contents:
-                                decode(bytes),
+                            contents,
 
                             loader,
 
@@ -2492,8 +2632,20 @@
                 write:
                     false,
 
+                // Source-map generation from ARC's own bundling
+                // step is intentionally left off. This is
+                // distinct from the input-side stripping in
+                // stripSourceMappingComments() above: that
+                // stops esbuild-wasm from trying (and failing)
+                // to resolve *existing* ".map" files referenced
+                // by package source; this setting just stops
+                // esbuild from generating a new inline map for
+                // the bundle it produces, which is unrelated
+                // work ARC doesn't currently consume. Safe to
+                // turn back on later without touching anything
+                // else.
                 sourcemap:
-                    "inline",
+                    false,
 
                 logLevel:
                     "warning",
@@ -2572,6 +2724,47 @@
 
         // ----------------------------------------------------
         // Bridge module
+        //
+        // CommonJS interop (Problem 1 fix, part 2)
+        // -----------------------------------------
+        // esbuild's own CJS->ESM interop is purely static: it
+        // can only turn `module.exports.foo = ...` /
+        // `exports.foo = ...` assignments into real named
+        // exports when it can prove, at bundle time, that
+        // `module.exports` was never *reassigned* wholesale.
+        //
+        // Many real npm packages (including @anthropic-ai/sdk's
+        // CJS build) do exactly that:
+        //
+        //   exports = module.exports = function (...) {...}
+        //   Object.defineProperty(exports, "Anthropic", {...})
+        //
+        // Once `module.exports` is reassigned to a new function,
+        // esbuild can no longer statically prove which
+        // properties end up on it, so it falls back to exposing
+        // the whole thing as a single `default` export - which
+        // is exactly the "everything becomes default" bug.
+        //
+        // Rather than trying to statically rewrite arbitrary CJS
+        // source (fragile - regressions on real-world code are
+        // very easy), ARC fixes this at the *runtime* boundary:
+        // once the real module has actually executed, we look at
+        // its `default` export and, if it is an object or
+        // function that itself carries additional own-enumerable
+        // properties (the CJS "hybrid export" pattern), we
+        // re-project those properties as top-level named exports
+        // too. Genuine ESM named exports always win over an
+        // identically-named property found on `default`, since
+        // those were explicitly authored as separate exports.
+        //
+        // This keeps working for:
+        //   - pure ESM packages (three, tesseract.js): "default"
+        //     rarely carries extra own properties worth
+        //     re-projecting, so this is a no-op for them.
+        //   - CJS object exports (module.exports = { a, b })
+        //   - CJS callable exports with attached statics
+        //     (module.exports = Foo; Foo.Bar = Bar)
+        //   - mixed ESM (export default X; export { Y })
         // ----------------------------------------------------
 
         const bridgeCode =
@@ -2579,8 +2772,99 @@
             import * as __ARC_MODULE
                 from ${JSON.stringify(packageURL)};
 
+            function __arc_projectNamespace(ns) {
+
+                const namedKeys =
+                    new Set(Object.keys(ns));
+
+                const def = ns.default;
+
+                const canCarryProps =
+                    def !== null &&
+                    (typeof def === "object" ||
+                        typeof def === "function");
+
+                if (!canCarryProps) {
+                    return ns;
+                }
+
+                // Collect the CJS-style properties attached
+                // directly to the default export.
+                const extra = {};
+                let hasExtra = false;
+
+                for (
+                    const key of
+                    Object.getOwnPropertyNames(def)
+                ) {
+
+                    // Skip intrinsic function/class fields and
+                    // anything already exported as a real named
+                    // ESM export (named exports win).
+                    if (
+                        key === "length" ||
+                        key === "name" ||
+                        key === "prototype" ||
+                        key === "caller" ||
+                        key === "arguments" ||
+                        key === "__esModule" ||
+                        namedKeys.has(key)
+                    ) {
+                        continue;
+                    }
+
+                    const descriptor =
+                        Object.getOwnPropertyDescriptor(
+                            def,
+                            key
+                        );
+
+                    if (!descriptor || !descriptor.enumerable) {
+                        continue;
+                    }
+
+                    try {
+
+                        extra[key] =
+                            def[key];
+
+                        hasExtra = true;
+
+                    } catch (err) {
+                        // Getter threw - skip it rather than
+                        // failing the whole import.
+                    }
+                }
+
+                if (!hasExtra) {
+                    return ns;
+                }
+
+                // A real module namespace object can't be
+                // extended directly, so build a plain object
+                // that behaves like one: original named exports
+                // plus the re-projected CJS properties.
+                const projected =
+                    Object.create(null);
+
+                for (const key of namedKeys) {
+                    projected[key] = ns[key];
+                }
+
+                for (const key of Object.keys(extra)) {
+                    projected[key] = extra[key];
+                }
+
+                console.log(
+                    "[ARC] Preserving named exports:",
+                    Object.keys(extra).join(", ")
+                );
+
+                return projected;
+            }
+
             globalThis[${JSON.stringify(resultKey)}]
-                = __ARC_MODULE;
+                = __arc_projectNamespace(__ARC_MODULE);
             `;
 
         const bridgeBlob =
