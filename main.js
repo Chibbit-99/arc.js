@@ -1,7 +1,7 @@
 async function getConfigValue() {
   try {
     // 1. Fetch the JSON file from the root-relative path
-    const response = await fetch('/.arc/config.json');
+    const response = await fetch('./.arc/config.json');
     
     // 2. Ensure the network request succeeded
     if (!response.ok) {
