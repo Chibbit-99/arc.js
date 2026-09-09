@@ -35,6 +35,15 @@
         .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; }
         .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:25px; }
         .card h3 { font-size:17px; margin-bottom:9px; } .card p { color:var(--muted); font-size:14px; line-height:1.6; }
+        .comparison { overflow-x:auto; background:var(--surface); border:1px solid var(--border); border-radius:10px; }
+        .comparison table { width:100%; min-width:700px; border-collapse:collapse; }
+        .comparison th, .comparison td { padding:17px 19px; border-bottom:1px solid var(--border); text-align:center; font-size:14px; }
+        .comparison th { color:var(--text); font-size:13px; font-weight:700; }
+        .comparison th:first-child, .comparison td:first-child { text-align:left; }
+        .comparison tbody tr:last-child td { border-bottom:0; }
+        .comparison td:first-child { color:var(--muted); font-weight:600; }
+        .check { color:#a8c58b; font-size:18px; font-weight:800; }
+        .cross { color:#8b909b; font-size:18px; font-weight:800; }
         .architecture { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
         .file { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:22px; }
         .file-name { font-family:"JetBrains Mono",Consolas,monospace; font-size:14px; color:var(--text); margin-bottom:10px; }
@@ -54,6 +63,7 @@
         <div class="nav-links">
             <a href="#about">About</a>
             <a href="#features">Features</a>
+            <a href="#comparison">Comparison</a>
             <a href="#structure">Structure</a>
             <a href="docs/">Docs</a>
             <a href="https://chibbit-99.github.io/arc.js/demo/threejs/">Three.js Demo ↗</a>
@@ -86,6 +96,22 @@ console.log(three);</pre>
             <div class="card"><h3>Extensible modules</h3><p>ARC.js loads functionality through modules, keeping the core runtime separate from optional features.</p></div>
             <div class="card"><h3>Browser-first</h3><p>Run the runtime directly from a static site. No Node.js server is required just to experiment with it.</p></div>
             <div class="card"><h3>Built to experiment</h3><p>ARC.js is intentionally small and flexible, making it a place to try ideas around browser-side JavaScript runtimes.</p></div>
+        </div></section>
+        <section class="features container" id="comparison"><h2>How it compares.</h2><div class="comparison">
+            <table>
+                <thead><tr><th>Capability</th><th>NPM build</th><th>CDN</th><th>ARC.js</th></tr></thead>
+                <tbody>
+                    <tr><td>Latest package version</td><td><span class="cross">✕</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+                    <tr><td>Easy to get started</td><td><span class="cross">✕</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+                    <tr><td>Hostable on static sites</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+                    <tr><td>No separate build step</td><td><span class="cross">✕</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+                    <tr><td>Use NPM package names</td><td><span class="check">✓</span></td><td><span class="cross">✕</span></td><td><span class="check">✓</span></td></tr>
+                    <tr><td>Automatic dependency resolution</td><td><span class="check">✓</span></td><td><span class="cross">✕</span></td><td><span class="check">✓</span></td></tr>
+                    <tr><td>Browser-side package loading</td><td><span class="cross">✕</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+                    <tr><td>Version pinning</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+                    <tr><td>Rebuild after dependency changes</td><td><span class="cross">✕</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+                </tbody>
+            </table>
         </div></section>
         <section class="features container" id="structure"><h2>How the project fits together.</h2><div class="architecture">
             <div class="file"><div class="file-name">main.js</div><p>The main ARC.js runtime. It loads the configuration, discovers the requested modules, and starts the configured JavaScript entry point.</p></div>
