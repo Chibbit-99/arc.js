@@ -5,109 +5,150 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ARC.js — Documentation</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0} :root{--bg:#08090b;--surface:#101216;--surface2:#0c0e11;--border:#22252b;--text:#f2f3f5;--muted:#8b909b;--accent:#c6613f;--code:#c9cdd4}
+*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#08090b;--surface:#101216;--surface2:#0c0e11;--border:#22252b;--text:#f2f3f5;--muted:#8b909b;--accent:#c6613f;--code:#c9cdd4}
 html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65}a{color:inherit;text-decoration:none}code,pre{font-family:"JetBrains Mono",Consolas,monospace}.wrap{width:min(1120px,calc(100% - 40px));margin:auto}
 nav{height:76px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}.logo{display:flex;align-items:center;gap:10px;font-weight:700}.mark{width:30px;height:30px;border:1px solid #383c44;border-radius:8px;display:grid;place-items:center;color:var(--accent);font-family:monospace}.nav{display:flex;gap:24px;color:var(--muted);font-size:14px}.nav a:hover,.toc a:hover{color:var(--text)}
 .layout{display:grid;grid-template-columns:210px 1fr;gap:55px;padding:55px 0 100px}.toc{position:sticky;top:28px;align-self:start}.toc h3{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);margin-bottom:15px}.toc a{display:block;color:var(--muted);font-size:14px;padding:6px 0}.content{max-width:820px}.eyebrow{color:var(--accent);font:600 13px/1.4 monospace;margin-bottom:12px}h1{font-size:clamp(42px,7vw,70px);letter-spacing:-3px;line-height:1;margin-bottom:20px}h2{font-size:32px;letter-spacing:-1.2px;margin:70px 0 18px}h3{font-size:20px;margin:34px 0 10px}.lead{font-size:18px;color:var(--muted);max-width:700px}.note{margin:22px 0;padding:18px 20px;border:1px solid var(--border);border-left:3px solid var(--accent);background:var(--surface);color:var(--muted)}
-pre{margin:18px 0;padding:20px;overflow:auto;border:1px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--code);font-size:14px;line-height:1.7}.kw{color:var(--accent)}.str{color:#a8c58b}.cm{color:#5d626d}.path{color:#d7dae0;font-family:"JetBrains Mono",Consolas,monospace}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}.card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:20px}.card p{color:var(--muted);font-size:14px}.flow{display:grid;gap:8px;margin:22px 0}.flow div{padding:13px 16px;border:1px solid var(--border);background:var(--surface);border-radius:7px;font-family:monospace;font-size:14px}.api{border:1px solid var(--border);border-radius:9px;overflow:hidden;margin:18px 0}.api-head{padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--border);font-family:monospace}.api-body{padding:18px;color:var(--muted);font-size:14px}.api-body strong{color:var(--text)}.demo{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}.button{border:1px solid var(--border);padding:11px 15px;border-radius:7px;font-size:14px;font-weight:600}.button:hover{border-color:#444952;transform:translateY(-1px)}.primary{background:var(--text);color:#08090b;border-color:var(--text)}footer{border-top:1px solid var(--border);padding:28px 0;color:var(--muted);font-size:13px}footer .wrap{display:flex;justify-content:space-between}
+pre{margin:18px 0;padding:20px;overflow:auto;border:1px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--code);font-size:14px;line-height:1.7}.kw{color:var(--accent)}.str{color:#a8c58b}.cm{color:#5d626d}.path{color:#d7dae0;font-family:"JetBrains Mono",Consolas,monospace}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}.card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:20px}.card p{color:var(--muted);font-size:14px}.api{border:1px solid var(--border);border-radius:9px;overflow:hidden;margin:18px 0}.api-head{padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--border);font-family:monospace}.api-body{padding:18px;color:var(--muted);font-size:14px}.api-body strong{color:var(--text)}.demo{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}.button{border:1px solid var(--border);padding:11px 15px;border-radius:7px;font-size:14px;font-weight:600}.button:hover{border-color:#444952;transform:translateY(-1px)}.primary{background:var(--text);color:#08090b;border-color:var(--text)}footer{border-top:1px solid var(--border);padding:28px 0;color:var(--muted);font-size:13px}footer .wrap{display:flex;justify-content:space-between}
 @media(max-width:820px){.layout{grid-template-columns:1fr}.toc{position:static;display:flex;gap:16px;flex-wrap:wrap}.toc h3{width:100%;margin-bottom:0}.grid{grid-template-columns:1fr}.nav{display:none}}
 </style>
 </head>
 <body>
 <nav class="wrap"><a class="logo" href="../"><span class="mark">A</span>ARC.js</a><div class="nav"><a href="../">Home</a><a href="https://github.com/Chibbit-99/arc.js">GitHub ↗</a><a href="../demo/threejs/">Three.js Demo ↗</a></div></nav>
 <div class="wrap layout">
-<aside class="toc"><h3>Documentation</h3><a href="#start">Getting started</a><a href="#structure">Project structure</a><a href="#config">config.json</a><a href="#startup">Startup sequence</a><a href="#npm">NPM packages</a><a href="#imports">importPackage()</a><a href="#global">importGlobal()</a><a href="#resolver">Package resolution</a><a href="#modules">Modules</a><a href="#demo">Examples</a></aside>
+<aside class="toc"><h3>Using ARC.js</h3><a href="#start">Quick start</a><a href="#structure">Project layout</a><a href="#config">config.json</a><a href="#init">arc/init.js</a><a href="#files">Project files</a><a href="#npm">NPM packages</a><a href="#imports">importPackage()</a><a href="#global">importGlobal()</a><a href="#versions">Versions & subpaths</a><a href="#debug">Debugging</a><a href="#examples">Examples</a></aside>
 <main class="content">
-<p class="eyebrow">ARC.JS / DOCUMENTATION</p>
-<h1>Browser JavaScript, with a runtime.</h1>
-<p class="lead">ARC.js is a browser-side runtime that loads project files from a configuration file, injects ARC modules, and can resolve and bundle NPM packages directly in the browser.</p>
+<p class="eyebrow">ARC.JS / USING ARC.JS</p>
+<h1>Build a browser project with ARC.js.</h1>
+<p class="lead">The usual flow is simple: load <span class="path">main.js</span>, create an <span class="path">arc/</span> directory, describe your project in <span class="path">config.json</span>, optionally set up dependencies in <span class="path">arc/init.js</span>, and write your application in <span class="path">src/</span>.</p>
 
-<h2 id="start">Getting started</h2>
-<p>ARC.js expects a small project layout. A page loads the runtime with a normal script tag; the runtime then looks for <span class="path">./arc/config.json</span> relative to that page.</p>
-<pre><span class="cm">&lt;!-- index.html --&gt;</span>
-&lt;script src=<span class="str">"https://chibbit-99.github.io/arc.js/main.js"</span>&gt;&lt;/script&gt;</pre>
-<p>Create an <span class="path">arc/config.json</span> file and point <span class="path">js</span> at your application entry point.</p>
+<h2 id="start">Quick start</h2>
+<p>Start with a normal HTML page and load the ARC.js runtime.</p>
+<pre>&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;body&gt;
+    &lt;h1&gt;My ARC.js app&lt;/h1&gt;
+
+    &lt;script src=<span class="str">"https://chibbit-99.github.io/arc.js/main.js"</span>&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+<p>ARC.js then looks for <span class="path">./arc/config.json</span> relative to the page.</p>
+<pre>my-project/
+├── index.html
+├── arc/
+│   ├── config.json
+│   └── init.js
+└── src/
+    └── main.js</pre>
+<div class="note">You do not need a package.json for ARC.js itself. The browser project is described by <span class="path">config.json</span>.</div>
+
+<h2 id="structure">Project layout</h2>
+<div class="grid">
+<div class="card"><div class="path">index.html</div><p>Your webpage. Load the ARC.js runtime with a script tag.</p></div>
+<div class="card"><div class="path">arc/config.json</div><p>Declares runtime modules and the project JavaScript files you want ARC.js to execute.</p></div>
+<div class="card"><div class="path">arc/init.js</div><p>Optional setup code. Useful for importing packages or creating globals before your application starts.</p></div>
+<div class="card"><div class="path">src/</div><p>Your application code. ARC.js can execute one file or several files listed in <span class="path">js</span>.</p></div>
+</div>
+
+<h2 id="config">Configure your project</h2>
+<p>The smallest useful configuration uses the NPM loader and one entry file.</p>
 <pre>{
   <span class="str">"modules"</span>: [<span class="str">"npmloader.js"</span>],
   <span class="str">"js"</span>: [<span class="str">"./src/main.js"</span>]
 }</pre>
-<div class="note">The repository's own <span class="path">demo/arc/</span> and <span class="path">demo/threejs/</span> projects use this exact configuration shape.</div>
-
-<h2 id="structure">Project structure</h2>
-<div class="grid">
-<div class="card"><div class="path">main.js</div><p>The core startup runtime. It loads config.json, fetches modules, executes arc/init.js when present, and runs the configured project JavaScript files.</p></div>
-<div class="card"><div class="path">module/npmloader.js</div><p>An ARC module that exposes browser-side NPM loading through importPackage() and importGlobal().</p></div>
-<div class="card"><div class="path">arc/config.json</div><p>Declares which ARC modules to load and which project JavaScript files should execute.</p></div>
-<div class="card"><div class="path">arc/init.js</div><p>Optional async initialization code. It executes before project JavaScript and can use await importPackage(...).</p></div>
-<div class="card"><div class="path">src/</div><p>Your application code. The runtime supports one JavaScript path or an array of paths in config.json.</p></div>
-<div class="card"><div class="path">demo/threejs/</div><p>A working example that imports Three.js through ARC.js and builds a 3D scene entirely in the browser.</p></div>
-</div>
-
-<h2 id="config">config.json</h2>
-<p>The runtime requires <span class="path">modules</span> to be an array. The <span class="path">js</span> property is optional and may be either one path or an array of paths.</p>
 <h3>Modules</h3>
-<pre>{
-  <span class="str">"modules"</span>: [
-    <span class="str">"npmloader.js"</span>
-  ]
-}</pre>
-<p>Each module name is fetched from the ARC.js module directory. A configured module is fetched, converted to text, injected as a script, and loaded before <span class="path">arc/init.js</span>.</p>
-<h3>JavaScript entry points</h3>
-<pre>{
+<p>Put module filenames in the <span class="path">modules</span> array. They are loaded from the ARC.js module directory before your initialization code runs.</p>
+<h3>JavaScript files</h3>
+<p><span class="path">js</span> accepts either a single string or an array.</p>
+<pre><span class="cm">// One file</span>
+{
+  <span class="str">"modules"</span>: [<span class="str">"npmloader.js"</span>],
+  <span class="str">"js"</span>: <span class="str">"./src/main.js"</span>
+}
+
+<span class="cm">// Several files</span>
+{
+  <span class="str">"modules"</span>: [<span class="str">"npmloader.js"</span>],
   <span class="str">"js"</span>: [
     <span class="str">"./src/components.js"</span>,
     <span class="str">"./src/main.js"</span>
   ]
 }</pre>
-<p>All configured JavaScript files are fetched concurrently. They are then executed in the same order in which they appear in the configuration.</p>
 
-<h2 id="startup">Startup sequence</h2>
-<div class="flow"><div>01 &nbsp; Load ./arc/config.json</div><div>02 &nbsp; Validate config.modules</div><div>03 &nbsp; Fetch and inject configured ARC modules</div><div>04 &nbsp; Load and await ./arc/init.js when it exists</div><div>05 &nbsp; Fetch configured project JavaScript files</div><div>06 &nbsp; Execute project files in config order</div><div>07 &nbsp; Project startup complete</div></div>
-<p>If <span class="path">arc/init.js</span> does not exist, ARC.js warns and continues. If <span class="path">js</span> is missing, no project JavaScript files are executed.</p>
-
-<h2 id="npm">NPM packages in the browser</h2>
-<p>The NPM loader is the largest runtime module currently shipped with ARC.js. It talks to the NPM registry, downloads package tarballs, extracts them into an in-memory virtual filesystem, resolves package entry points and dependencies, bundles the result with esbuild-WASM, and injects the compiled ESM bundle.</p>
-<div class="flow"><div>NPM registry metadata</div><div>Package tarball (.tar.gz)</div><div>In-memory virtual filesystem</div><div>package.json / exports / browser resolution</div><div>Dependency tree</div><div>esbuild-WASM bundle</div><div>Injected module script</div></div>
-<p>The loader currently uses esbuild-WASM 0.28.1 and fflate 0.8.2 for browser-side compilation and gzip extraction.</p>
-
-<h2 id="imports">importPackage()</h2>
-<div class="api"><div class="api-head">await importPackage(specifier)</div><div class="api-body"><strong>specifier</strong> can be a package name, scoped package, optional version/range, or package subpath. The function returns the imported module namespace.</div></div>
+<h2 id="init">Use arc/init.js</h2>
+<p><span class="path">arc/init.js</span> is optional. When it exists, ARC.js executes it before the project JavaScript files and waits for it to finish.</p>
 <pre><span class="kw">const</span> three = <span class="kw">await</span> importPackage(<span class="str">"three"</span>);
 
-<span class="kw">const</span> tesseract = <span class="kw">await</span> importPackage(<span class="str">"tesseract.js"</span>);
+globalThis.THREE = three;</pre>
+<p>This makes initialization code a convenient place to prepare libraries that the rest of your application will use.</p>
+<div class="note">ARC.js executes <span class="path">init.js</span> as an async function, so <span class="path">await importPackage(...)</span> can be used directly.</div>
 
-<span class="cm">// Versions and subpaths are parsed by ARC.js.</span>
-<span class="kw">const</span> helpers = <span class="kw">await</span> importPackage(<span class="str">"some-package@1.2.3/helpers"</span>);</pre>
-<p>Imports are cached by the exact requested specifier. A later call with the same specifier returns the cached module instead of recompiling it.</p>
+<h2 id="files">Write your application</h2>
+<p>Once the runtime has loaded, the files in <span class="path">js</span> are executed as browser JavaScript.</p>
+<pre><span class="cm">// src/main.js</span>
+
+console.log(<span class="str">"ARC.js is running"</span>);
+
+document.body.insertAdjacentHTML(
+    <span class="str">"beforeend"</span>,
+    <span class="str">"&lt;p&gt;Hello from the project entry point.&lt;/p&gt;"</span>
+);</pre>
+<p>When there are multiple entries, ARC.js fetches them concurrently and then executes them in configuration order.</p>
+
+<h2 id="npm">Use NPM packages</h2>
+<p>The included <span class="path">npmloader.js</span> module adds browser-side NPM imports.</p>
+<pre><span class="kw">const</span> THREE = <span class="kw">await</span> importPackage(<span class="str">"three"</span>);
+
+<span class="kw">const</span> scene = <span class="kw">new</span> THREE.Scene();
+<span class="kw">const</span> camera = <span class="kw">new</span> THREE.PerspectiveCamera(
+    70,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+);
+
+console.log(scene, camera);</pre>
+<p>The same API is used by the repository's Three.js example.</p>
+<div class="demo"><a class="button primary" href="../demo/threejs/">Try the Three.js example ↗</a></div>
+
+<h2 id="imports">importPackage()</h2>
+<div class="api"><div class="api-head">await importPackage(specifier)</div><div class="api-body">Loads a package and returns its module namespace. The package is resolved, bundled for the browser, and then cached for reuse.</div></div>
+<pre><span class="kw">const</span> tesseract = <span class="kw">await</span> importPackage(<span class="str">"tesseract.js"</span>);
+<span class="kw">const</span> three = <span class="kw">await</span> importPackage(<span class="str">"three"</span>);</pre>
+<p>The runtime exposes the function globally, so there is no separate ARC.js import statement to write.</p>
 
 <h2 id="global">importGlobal()</h2>
-<div class="api"><div class="api-head">importGlobal(packageName, exportKey, alias)</div><div class="api-body"><strong>packageName</strong> must already have been imported. <strong>exportKey</strong> names an export from that cached module. <strong>alias</strong> optionally controls the name assigned to globalThis.</div></div>
+<div class="api"><div class="api-head">importGlobal(packageName, exportKey, alias)</div><div class="api-body">Copies one export from an already imported package onto <span class="path">globalThis</span>.</div></div>
 <pre><span class="kw">await</span> importPackage(<span class="str">"three"</span>);
 importGlobal(<span class="str">"three"</span>, <span class="str">"ArrowHelper"</span>);
 
-<span class="cm">// Or choose another global name.</span>
+<span class="cm">// Optional alias:</span>
 importGlobal(<span class="str">"three"</span>, <span class="str">"Vector3"</span>, <span class="str">"Vec3"</span>);</pre>
-<div class="note">importGlobal() deliberately does not import packages for you. It is synchronous convenience around an already-cached import, so network and compilation work stays inside importPackage().</div>
+<div class="note">The package must already be imported. <span class="path">importGlobal()</span> does not perform package loading or network requests.</div>
 
-<h2 id="resolver">Package resolution</h2>
-<p>The loader parses normal and scoped package specifiers, optional versions, subpaths, and several common semver forms. Package entry resolution considers <span class="path">exports</span>, direct subpaths, browser entries, <span class="path">module</span>, <span class="path">main</span>, and finally <span class="path">index.js</span>.</p>
-<p>For conditional exports, the browser-oriented preference is <span class="path">browser → import → module → default → require</span>. Relative package imports are resolved inside the package's virtual filesystem, while bare imports are checked against the importing package's declared dependencies.</p>
-<p>The loader also understands CommonJS/ESM interop at the module boundary and re-projects enumerable properties attached to a default CJS export so common hybrid packages can expose named properties to browser code.</p>
+<h2 id="versions">Versions and subpaths</h2>
+<p>You can request a particular package version or package subpath.</p>
+<pre><span class="kw">const</span> exact = <span class="kw">await</span> importPackage(<span class="str">"three@0.180.0"</span>);
+<span class="kw">const</span> helper = <span class="kw">await</span> importPackage(<span class="str">"some-package/helpers"</span>);
+<span class="kw">const</span> both = <span class="kw">await</span> importPackage(<span class="str">"some-package@1.2.3/helpers"</span>);</pre>
+<p>The loader understands common version ranges such as exact versions, major/minor versions, wildcards, <span class="path">^</span>, <span class="path">~</span>, and comparison expressions.</p>
 
-<h2 id="modules">ARC modules</h2>
-<p>Modules are optional pieces of runtime functionality. <span class="path">main.js</span> loads each name in <span class="path">config.modules</span> from:</p>
-<pre>https://chibbit-99.github.io/arc.js/module/&lt;module-name&gt;</pre>
-<p>That separation is intentional: the startup runtime stays responsible for bootstrapping projects, while functionality such as NPM loading lives in an independent module.</p>
-
-<h2 id="demo">Examples</h2>
-<p>The repository contains two useful starting points.</p>
-<div class="grid"><div class="card"><div class="path">demo/arc/</div><p>A minimal ARC.js project. It uses npmloader.js, an init.js file, and src/main.js.</p><div class="demo"><a class="button" href="../demo/">Open demo ↗</a></div></div><div class="card"><div class="path">demo/threejs/</div><p>A larger example. Its init.js imports Three.js and src/main.js creates the terrain, trees, lake, clouds, renderer, and animation loop.</p><div class="demo"><a class="button primary" href="../demo/threejs/">Open Three.js demo ↗</a></div></div></div>
-
-<h2>Debugging</h2>
-<p>ARC.js logs its startup process with the <span class="path">[ARC]</span> prefix. The NPM loader also exposes <span class="path">globalThis.ARC</span> for inspection, including package/module caches and its initialized compiler tools.</p>
+<h2 id="debug">Debugging</h2>
+<p>Open your browser's developer console to see ARC.js startup messages. Runtime and package-loader messages use the <span class="path">[ARC]</span> prefix.</p>
 <pre>console.log(ARC);
-console.log(await importPackage(<span class="str">"three"</span>));</pre>
-<p>When package loading fails, importPackage() logs the package specifier and rethrows the underlying error so it is visible to the calling code.</p>
+
+<span class="kw">const</span> three = <span class="kw">await</span> importPackage(<span class="str">"three"</span>);
+console.log(three);</pre>
+<p>The global <span class="path">ARC</span> object exposes runtime state useful for debugging, including loaded package/module caches.</p>
+
+<h2 id="examples">Examples</h2>
+<div class="grid">
+<div class="card"><div class="path">demo/arc/</div><p>The minimal example. Use it as a starting point for understanding the basic ARC.js project layout.</p><div class="demo"><a class="button" href="../demo/">Open demo ↗</a></div></div>
+<div class="card"><div class="path">demo/threejs/</div><p>A complete example using <span class="path">importPackage("three")</span> and building a browser 3D scene.</p><div class="demo"><a class="button primary" href="../demo/threejs/">Open Three.js demo ↗</a></div></div>
+</div>
+
+<h2>What ARC.js does for you</h2>
+<p>You provide the HTML page, configuration, optional initialization, and application code. ARC.js handles the startup sequence and, when <span class="path">npmloader.js</span> is enabled, the browser-side work needed to turn an NPM package into something your application can use.</p>
 
 <div class="demo"><a class="button primary" href="../">Back to ARC.js</a><a class="button" href="https://github.com/Chibbit-99/arc.js">View source on GitHub ↗</a></div>
 </main>
