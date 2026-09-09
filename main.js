@@ -115,7 +115,7 @@ async function getConfigValue() {
     }
 
     // ==================================================
-    // Load project's JavaScript files
+    // Load project JavaScript files
     // ==================================================
 
     if (!config.js) {
@@ -126,7 +126,6 @@ async function getConfigValue() {
       return config;
     }
 
-    // --------------------------------------------------
     // Support both:
     //
     // "js": "./src/main.js"
@@ -134,10 +133,9 @@ async function getConfigValue() {
     // and:
     //
     // "js": [
-    //   "./src/main.js",
-    //   "./src/components.js"
+    //   "./src/components.js",
+    //   "./src/main.js"
     // ]
-    // --------------------------------------------------
 
     const jsFiles = Array.isArray(config.js)
       ? config.js
@@ -147,39 +145,74 @@ async function getConfigValue() {
       `[ARC] Found ${jsFiles.length} project JavaScript file(s)`
     );
 
-    for (const jsFile of jsFiles) {
-      console.log(
-        `[ARC] Loading project JavaScript: ${jsFile}`
-      );
+    // ==================================================
+    // Fetch all project JavaScript files concurrently
+    // ==================================================
 
-      const jsResponse = await fetch(jsFile);
+    console.log("[ARC] Fetching project JavaScript files...");
 
-      if (!jsResponse.ok) {
-        console.error(
-          `[ARC] Failed to fetch project JavaScript "${jsFile}": HTTP ${jsResponse.status}`
-        );
+    const jsResults = await Promise.all(
+      jsFiles.map(async (jsFile) => {
+        console.log(`[ARC] Fetching: ${jsFile}`);
 
+        try {
+          const jsResponse = await fetch(jsFile);
+
+          if (!jsResponse.ok) {
+            console.error(
+              `[ARC] Failed to fetch project JavaScript "${jsFile}": HTTP ${jsResponse.status}`
+            );
+
+            return null;
+          }
+
+          const jsCode = await jsResponse.text();
+
+          console.log(
+            `[ARC] Fetched ${jsFile} (${jsCode.length} bytes)`
+          );
+
+          return {
+            file: jsFile,
+            code: jsCode
+          };
+
+        } catch (error) {
+          console.error(
+            `[ARC] Failed to fetch project JavaScript "${jsFile}":`,
+            error
+          );
+
+          return null;
+        }
+      })
+    );
+
+    // ==================================================
+    // Execute project JavaScript files in config order
+    // ==================================================
+
+    console.log("[ARC] Executing project JavaScript files...");
+
+    for (const result of jsResults) {
+      if (!result) {
         continue;
       }
 
-      const jsCode = await jsResponse.text();
+      const { file, code } = result;
 
       console.log(
-        `[ARC] Fetched ${jsFile} (${jsCode.length} bytes)`
-      );
-
-      console.log(
-        `[ARC] Executing project JavaScript: ${jsFile}`
+        `[ARC] Executing project JavaScript: ${file}`
       );
 
       const jsScript = document.createElement("script");
 
-      jsScript.textContent = jsCode;
+      jsScript.textContent = code;
 
       document.body.appendChild(jsScript);
 
       console.log(
-        `[ARC] Project JavaScript executed successfully: ${jsFile}`
+        `[ARC] Project JavaScript executed successfully: ${file}`
       );
     }
 
