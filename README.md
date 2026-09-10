@@ -5,7 +5,7 @@ ARC.js is a lightweight browser runtime for loading project JavaScript from a si
 It is designed for experimenting with a more flexible browser runtime without needing a traditional build setup for the project itself.
 
 -----------------------------------
-## Arrc.js is deprecated.
+## Arc.js is deprecated.
 
 -> ARCH.JS https://github.com/Chibbit-99/arch.js
 -----------------------------------
